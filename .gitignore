@@ -205,3 +205,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Mis archivos
+gen-lang-client-0130790302-aa9d7434f224.json
+conversaciones/
