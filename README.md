@@ -1,291 +1,447 @@
-# 🤖 Agente Inteligente - Analizador de Imágenes con Gemini
+# Editor de Imágenes con Asistente IA
 
-Asistente conversacional de IA especializado en análisis de imágenes utilizando Google Gemini a través de LangChain. Este agente permite mantener conversaciones naturales sobre imágenes, con capacidad de guardar y retomar conversaciones previas.
+## Descripción del Proyecto
 
-## 📋 Características Técnicas
+Este proyecto es un editor de imágenes interactivo que integra un asistente de inteligencia artificial basado en Google Gemini. La aplicación permite cargar y editar imágenes utilizando controles manuales mientras el asistente analiza la imagen y proporciona sugerencias de mejora personalizadas.
 
-### Tecnologías Principales
-- **Modelo de IA**: Google Gemini 2.5 Flash
-- **Framework**: LangChain para gestión de conversaciones
-- **Lenguaje**: Python 3.8+
-- **Análisis**: Visión por computadora multimodal (texto + imagen)
+### Características Principales
 
-### Funcionalidades
+El asistente IA analiza las imágenes cargadas y sugiere ajustes específicos basándose en:
+- Iluminación y distribución de colores
+- Contraste y nitidez
+- Composición y elementos visuales
+- Aspectos técnicos de calidad
 
-#### 🖼️ Análisis de Imágenes
-- Análisis detallado de imágenes con descripción de:
-  - Elementos principales
-  - Colores predominantes y distribución
-  - Contexto y ambiente
-  - Detalles relevantes e interesantes
-- Soporte para formatos: JPEG, PNG, y otros formatos de imagen comunes
+A diferencia de otros editores automáticos, este sistema mantiene al usuario en control total, permitiendo que el asistente solo sugiera valores específicos que el usuario puede aplicar manualmente mediante controles intuitivos.
 
-#### 💬 Conversación Interactiva
-- Diálogo natural y contextual sobre las imágenes analizadas
-- Memoria conversacional que mantiene el contexto durante toda la sesión
-- Referencias a puntos mencionados previamente
-- Preguntas abiertas para mantener el diálogo activo
+## Funcionalidades
 
-#### 💾 Persistencia de Conversaciones
-- **Guardado en JSON**: Almacena conversaciones completas incluyendo:
-  - Historial completo de mensajes
-  - Imagen en formato base64
-  - Timestamp de guardado
-  - Metadatos de la conversación
-- **Carga de conversaciones**: Restaura sesiones previas para continuar donde se quedó
-- **Guardado automático**: Opción al salir para no perder el progreso
+### 1. Carga y Visualización de Imágenes
+- Soporta formatos JPG, JPEG, PNG, BMP y GIF
+- Vista dual: imagen original y editada lado a lado
+- Interfaz responsiva con scroll horizontal y vertical
+- Modo pantalla completa automático
 
-#### 🧠 Gestión de Memoria
-- `ConversationBufferMemory` de LangChain para mantener contexto
-- Separación clara entre mensajes del usuario y del asistente
-- Formato estructurado para fácil recuperación
+### 2. Controles de Edición Manual
 
-## 🛠️ Requisitos del Sistema
+#### Brillo (Brightness)
+- Rango: -100 a +100
+- Fórmula: output = input + brillo
+- Ajuste lineal que suma el valor directamente a cada píxel RGB
 
-### Requisitos de Software
+#### Contraste (Contrast)
+- Rango: 0.5 a 3.0
+- Fórmula: output = input × contraste
+- Multiplica cada píxel por el factor de contraste
+- 1.0 = sin cambio, >1.0 aumenta, <1.0 reduce
+
+#### Desenfoque (Blur)
+- Rango: 0 a 25
+- Método: Gaussian Blur con kernel (valor×2+1, valor×2+1)
+- Promedia píxeles vecinos con distribución gaussiana
+
+#### Nitidez (Sharpen)
+- Rango: 0.0 a 3.0
+- Método: Unsharp Mask
+- Fórmula: output = (1 + valor×0.5)×original - (valor×0.5)×desenfocada
+- Resta versión desenfocada para resaltar bordes
+
+#### Rotación
+- Rango: 0 a 360 grados
+- Rotación en sentido horario alrededor del centro
+
+#### Escala de Grises
+- Checkbox para convertir imagen a tonos de gris
+- Útil para análisis técnico y fotográfico
+
+#### Volteos
+- Volteo horizontal (espejo)
+- Volteo vertical (inversión)
+
+### 3. Asistente Conversacional
+
+El asistente de IA ofrece:
+- Análisis automático al cargar una imagen
+- Sugerencias específicas con valores numéricos exactos
+- Conversación contextual sobre la imagen
+- Respuestas personalizadas a preguntas del usuario
+- Conocimiento técnico sobre las fórmulas y efectos de cada control
+
+### 4. Gestión de Sesiones
+
+#### Memoria por Imagen
+- Cada imagen mantiene su propia conversación
+- Historial independiente por archivo
+- Al recargar una imagen, se recupera su contexto
+
+#### Guardar y Cargar Conversaciones
+- Exportación en formato JSON
+- Incluye imagen original (base64)
+- Incluye imagen editada con todos los ajustes
+- Almacena estados de todos los controles
+- Preserva historial completo de mensajes
+
+#### Guardar Imagen Editada
+- Exporta la imagen procesada
+- Formatos disponibles: PNG, JPG
+- Conserva todos los ajustes aplicados
+
+## Instalación y Configuración
+
+### Requisitos Previos
+
 - Python 3.8 o superior
-- pip (gestor de paquetes de Python)
-- Conexión a internet (para API de Google Gemini)
+- Pip (gestor de paquetes de Python)
+- Clave API de Google Gemini
 
-### Dependencias Principales
-```
-langchain==0.3.27
-langchain-core==0.3.79
-langchain-google-genai==2.0.8
-google-generativeai==0.8.5
-python-dotenv==1.1.1
-```
+### Paso 1: Clonar el Repositorio
 
-## 🚀 Instalación y Despliegue Local
-
-### 1. Clonar el Repositorio
 ```bash
 git clone https://github.com/JoseLuisAlvarezManica/AgenteInteligente.git
 cd AgenteInteligente
 ```
 
-### 2. Crear Entorno Virtual (Recomendado)
+### Paso 2: Crear Entorno Virtual
+
+Se recomienda usar un entorno virtual para aislar las dependencias:
+
 ```bash
-# Windows
+# En Windows
 python -m venv venv
 venv\Scripts\activate
 
-# Linux/Mac
+# En Linux/Mac
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instalar Dependencias
+### Paso 3: Instalar Dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configurar Variables de Entorno
+Las dependencias principales incluyen:
+- langchain: Framework para aplicaciones con LLM
+- langchain-google-genai: Integración con Google Gemini
+- opencv-python: Procesamiento de imágenes
+- Pillow: Manipulación de imágenes
+- python-dotenv: Gestión de variables de entorno
+- numpy: Operaciones numéricas
 
-Crea un archivo `.env` en la raíz del proyecto:
-```env
-GEMINI_API_KEY=tu_clave_api_de_gemini_aqui
-```
+### Paso 4: Configurar Variables de Entorno
 
-#### Obtener una API Key de Google Gemini:
-1. Visita [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Inicia sesión con tu cuenta de Google
-3. Crea una nueva API Key
-4. Copia la clave y pégala en el archivo `.env`
+1. Crear un archivo `.env` en la raíz del proyecto:
 
-### 5. Ejecutar el Agente
 ```bash
-python image_analyzer.py
+# En Windows
+copy NUL .env
+
+# En Linux/Mac
+touch .env
 ```
 
-## 📖 Guía de Uso
-
-### Inicio de Sesión
-
-Al ejecutar el programa, verás el menú principal:
-```
-=== Analizador de Imágenes con Gemini ===
-----------------------------------------
-
-¿Quieres cargar una conversación previa? (s/n):
-```
-
-#### Opción 1: Nueva Conversación
-1. Responde `n` para iniciar una nueva conversación
-2. Ingresa la ruta de la imagen a analizar
-3. El agente generará un análisis inicial detallado
-4. Inicia la conversación sobre la imagen
-
-#### Opción 2: Cargar Conversación Previa
-1. Responde `s` para cargar una conversación guardada
-2. Ingresa el nombre del archivo JSON (ej: `mi_conversacion.json`)
-3. El historial se cargará automáticamente
-4. Continúa la conversación donde la dejaste
-
-### Comandos Durante la Conversación
-
-| Comando | Descripción |
-|---------|-------------|
-| `guardar` | Guarda la conversación actual en formato JSON |
-| `nueva` | Analiza una nueva imagen (mantiene la sesión) |
-| `salir` | Finaliza el programa (ofrece guardar antes de salir) |
-| Cualquier texto | Continúa la conversación sobre la imagen |
-
-### Ejemplos de Uso
-
-#### Análisis de Imagen
-```
-Ingrese la ruta de la imagen a analizar: C:\imagenes\paisaje.jpg
-
-Analizando imagen: C:\imagenes\paisaje.jpg
-
-Descripción inicial:
---------------------------------------------------
-Veo un hermoso paisaje montañoso al atardecer...
-[análisis detallado]
-¿Qué te parece el contraste entre las montañas y el cielo?
---------------------------------------------------
-
-Tú: Me encanta cómo se reflejan los colores en el agua
-Asistente: [respuesta contextual...]
-```
-
-#### Guardar Conversación
-```
-Tú: guardar
-Nombre del archivo para guardar (sin extensión): paisaje_conversacion
-✓ Conversación guardada exitosamente en paisaje_conversacion.json
-```
-
-#### Cargar Conversación
-```
-¿Quieres cargar una conversación previa? (s/n): s
-Ingrese el nombre del archivo de conversación (con extensión .json): paisaje_conversacion.json
-✓ Conversación cargada exitosamente desde paisaje_conversacion.json
-
---- Historial de conversación cargado ---
-Usuario: Me encanta cómo se reflejan los colores en el agua
-Asistente: [respuesta previa...]
---------------------------------------------------
-```
-
-## 📁 Estructura del Proyecto
+2. Editar el archivo `.env` y agregar tu clave API de Google Gemini:
 
 ```
-AgenteInteligente/
-│
-├── image_analyzer.py          # Script principal del agente
-├── requirements.txt            # Dependencias del proyecto
-├── README.md                   # Este archivo
-├── .env                        # Variables de entorno (no incluido en git)
-├── .gitignore                  # Archivos ignorados por git
-│
-└── [conversaciones guardadas]  # Archivos .json generados
+GEMINI_API_KEY=tu_clave_api_aqui
 ```
 
-## 🔧 Configuración Avanzada
+#### Como Obtener la Clave API de Google Gemini
 
-### Ajustar Parámetros del Modelo
+1. Visitar [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Iniciar sesión con tu cuenta de Google
+3. Hacer clic en "Create API Key"
+4. Copiar la clave generada
+5. Pegarla en el archivo `.env`
 
-En `image_analyzer.py`, línea 22-26:
-```python
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",    # Modelo a utilizar
-    google_api_key=os.getenv('GEMINI_API_KEY'),
-    temperature=0.7               # Creatividad (0.0 - 1.0)
-)
+**Importante**: Nunca compartas tu clave API públicamente ni la subas a repositorios de código.
+
+### Paso 5: Ejecutar la Aplicación
+
+```bash
+python image_analyzer_gui.py
 ```
 
-- **temperature**: Controla la creatividad de las respuestas
-  - `0.0`: Respuestas más determinísticas y predecibles
-  - `1.0`: Respuestas más creativas y variadas
-  - Recomendado: `0.7` para balance
+La aplicación se abrirá en modo pantalla completa.
 
-### Personalizar Prompts
+## Uso de la Aplicación
 
-Los prompts del sistema se encuentran en las líneas 29-59:
-- `VISION_PROMPT`: Guía el análisis inicial de la imagen
-- `DIALOG_PROMPT`: Guía las respuestas durante la conversación
+### Flujo Básico
 
-## 🔒 Seguridad
+1. **Cargar Imagen**: Hacer clic en "Cargar Imagen" y seleccionar un archivo
+2. **Análisis Automático**: El asistente analizará la imagen automáticamente
+3. **Revisar Sugerencias**: Leer las recomendaciones del asistente
+4. **Aplicar Ajustes**: Usar los sliders y controles para editar la imagen
+5. **Conversación**: Hacer preguntas específicas al asistente
+6. **Guardar**: Exportar la imagen editada o guardar la sesión completa
 
-- ⚠️ **Nunca compartas tu archivo `.env`** con nadie
-- ⚠️ **No incluyas tu API Key** en el código fuente
-- ⚠️ El archivo `.gitignore` ya está configurado para excluir `.env`
-- 🔐 Las API Keys son personales y no deben ser compartidas
+### Interacción con el Asistente
 
-## 📊 Formato de Datos JSON
+El asistente responde a preguntas como:
+- "¿Qué puedo mejorar en esta imagen?"
+- "¿Cuánto brillo debería agregar?"
+- "¿La imagen está bien expuesta?"
+- "¿Qué colores predominan?"
+- "¿Necesita más contraste?"
 
-Las conversaciones se guardan con la siguiente estructura:
+## Caso de Prueba: Guardado de Sesión de Edición
+
+### Descripción de la Prueba
+
+Esta prueba validó la funcionalidad de guardado y persistencia de sesiones del sistema. El objetivo fue verificar que la aplicación puede:
+1. Cargar una imagen correctamente
+2. Mantener el estado inicial de todos los controles
+3. Guardar la sesión completa en formato JSON
+4. Preservar tanto la imagen original como la procesada
+5. Permitir la recuperación posterior de la sesión
+
+### Contexto de la Prueba
+
+Se realizó una prueba con una imagen llamada "Canvas FreshKeeper.png" correspondiente a una credencial de identificación académica. La prueba consistió en:
+
+1. **Carga de Imagen**: Se cargó la imagen en la aplicación
+2. **Estado Inicial**: Se verificó que todos los controles estuvieran en sus valores predeterminados
+3. **Guardado de Sesión**: Se utilizó el botón "Guardar Conversación" para exportar el estado
+4. **Verificación**: Se generó el archivo `prueba.json` con toda la información de la sesión
+
+### Estructura del Archivo JSON Guardado
+
+El archivo `prueba.json` contiene:
+
 ```json
 {
-  "timestamp": "2025-10-13T15:30:45.123456",
-  "messages": [
-    {
-      "type": "human",
-      "content": "Mensaje del usuario"
-    },
-    {
-      "type": "ai",
-      "content": "Respuesta del asistente"
+  "timestamp": "2025-11-22T13:54:24.744704",
+  "current_image": "Canvas FreshKeeper.png",
+  "conversations": {
+    "Canvas FreshKeeper.png": {
+      "messages": [],
+      "image_data": "[base64_encoded_image]",
+      "image_path": "ruta/al/archivo/Canvas FreshKeeper.png",
+      "cv2_operations": [],
+      "control_states": {
+        "brightness": 0,
+        "contrast": 1.0,
+        "blur": 0,
+        "sharpen": 0.0,
+        "rotation": 0,
+        "grayscale": false,
+        "flip_h": false,
+        "flip_v": false
+      },
+      "processed_image": "[base64_encoded_processed_image]"
     }
-  ],
-  "image_data": "base64_encoded_image_data..."
+  }
 }
 ```
 
-## 🐛 Solución de Problemas
+### Elementos Guardados
 
-### Error: "La variable de entorno 'GEMINI_API_KEY' no está establecida"
-**Solución**: Verifica que el archivo `.env` existe y contiene la clave API correcta.
+1. **Timestamp**: Marca de tiempo exacta del guardado (2025-11-22T13:54:24.744704)
+2. **Imagen Actual**: Referencia a la imagen que estaba siendo editada
+3. **Imagen Original**: Codificada en base64 para portabilidad completa
+4. **Imagen Procesada**: Versión editada también en base64
+5. **Estados de Controles**: Valores exactos de todos los ajustes aplicados
+6. **Historial de Mensajes**: Conversación completa con el asistente (vacía en este caso inicial)
+7. **Operaciones CV2**: Registro de operaciones aplicadas (vacío en estado inicial)
 
-### Error: "Import langchain_google_genai could not be resolved"
-**Solución**: 
-```bash
-pip install langchain-google-genai==2.0.8
+### Funcionalidad Demostrada
+
+La prueba demostró exitosamente:
+
+**1. Guardado Completo de Estado**
+- Todos los controles se guardaron con sus valores: brightness=0, contrast=1.0, blur=0, sharpen=0.0, rotation=0
+- Estados de checkboxes y botones: grayscale=false, flip_h=false, flip_v=false
+- Timestamp preciso del momento del guardado
+
+**2. Persistencia de Imágenes**
+- Imagen original convertida a base64 y almacenada en el JSON
+- Imagen procesada (idéntica a la original en este caso, sin ediciones) también guardada
+- Portabilidad completa: el archivo JSON contiene todo lo necesario para restaurar la sesión
+
+**3. Gestión de Memoria por Imagen**
+- La estructura permite múltiples imágenes en un solo archivo
+- Cada imagen tiene su propia sección con datos independientes
+- El campo "current_image" indica cuál imagen estaba activa
+
+**4. Historial de Conversación**
+- Array de mensajes vacío (la imagen se cargó pero no se interactuó con el asistente)
+- Preparado para almacenar conversaciones futuras
+- Mantiene el contexto separado por imagen
+
+**5. Trazabilidad**
+- Timestamp: 2025-11-22T13:54:24.744704
+- Ruta de la imagen original preservada
+- Registro de operaciones CV2 (vacío en estado inicial)
+
+### Resultados de la Prueba
+
+**Verificación Exitosa:**
+- ✓ Archivo JSON generado correctamente (prueba.json)
+- ✓ Estructura de datos válida y bien formada
+- ✓ Imagen codificada en base64 (aprox. 50KB de datos)
+- ✓ Todos los campos requeridos presentes
+- ✓ Estados de controles preservados correctamente
+- ✓ Timestamp registrado con precisión de microsegundos
+
+**Implicaciones Prácticas:**
+
+1. **Flujo de Trabajo Interrumpido**: Un usuario puede cerrar la aplicación y retomar exactamente donde lo dejó al cargar el JSON
+
+2. **Colaboración**: El archivo puede compartirse con otros usuarios que tengan la aplicación instalada
+
+3. **Versionado**: Múltiples versiones de edición de una misma imagen pueden guardarse con diferentes nombres
+
+4. **Backup Automático**: Los usuarios pueden guardar progreso periódicamente sin perder trabajo
+
+### Caso de Uso
+
+Al cargar este archivo `prueba.json` en la aplicación:
+1. Se restaura automáticamente la imagen "Canvas FreshKeeper.png"
+2. Se cargan los estados de todos los controles (en este caso, valores por defecto)
+3. Se recupera la imagen original y la procesada
+4. Se puede continuar la edición desde donde se dejó
+5. El historial de conversación se mantiene disponible
+
+Este sistema de guardado permite a los usuarios:
+- Trabajar en múltiples sesiones sin perder progreso
+- Compartir sesiones de edición con otros usuarios
+- Mantener registro de ajustes aplicados a cada imagen
+- Recuperar trabajo después de cerrar la aplicación
+
+### Conclusión de la Prueba
+
+La prueba validó que el sistema de persistencia funciona correctamente, guardando de manera fiable:
+- El estado completo de la interfaz
+- Las imágenes en formato portable
+- El historial de conversación con el asistente
+- Metadatos necesarios para restauración completa
+
+Este mecanismo es fundamental para la usabilidad del sistema, permitiendo sesiones de trabajo extendidas y colaboración entre usuarios.
+
+## Arquitectura Técnica
+
+### Estructura del Proyecto
+
+```
+AgenteInteligente/
+├── image_analyzer_gui.py    # Aplicación principal con interfaz gráfica
+├── image_analyzer.py         # Versión CLI (opcional)
+├── requirements.txt          # Dependencias del proyecto
+├── .env                      # Variables de entorno (no incluido en repo)
+├── README.md                # Este archivo
+└── gen-lang-client-*.json   # Credenciales de Google (generado)
 ```
 
-### Error al cargar imagen
-**Solución**: 
-- Verifica que la ruta de la imagen es correcta
-- Usa rutas absolutas (ej: `C:\imagenes\foto.jpg`)
-- Asegúrate de que el archivo existe y es una imagen válida
+### Componentes Principales
 
-### Error de conexión API
-**Solución**:
-- Verifica tu conexión a internet
-- Confirma que tu API Key es válida
-- Revisa los límites de uso de tu cuenta de Google AI
+#### 1. DialogContext
+Clase que gestiona la memoria y contexto de conversaciones:
+- Almacena conversaciones separadas por imagen
+- Mantiene estados de controles para cada imagen
+- Guarda y carga sesiones en formato JSON
+- Gestiona el historial de mensajes con LangChain
 
-## 🤝 Contribuciones
+#### 2. ImageAnalyzerGUI
+Clase principal de la interfaz gráfica:
+- Gestión de widgets Tkinter
+- Procesamiento de imágenes con OpenCV
+- Comunicación con Google Gemini mediante LangChain
+- Threading para operaciones asíncronas
 
-Las contribuciones son bienvenidas. Para contribuir:
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/NuevaCaracteristica`)
-3. Commit tus cambios (`git commit -m 'Añadir nueva característica'`)
-4. Push a la rama (`git push origin feature/NuevaCaracteristica`)
-5. Abre un Pull Request
+#### 3. Sistema de Prompts
+Dos prompts principales guían al asistente:
 
-## 📝 Licencia
+**VISION_PROMPT**: Para análisis inicial de imágenes
+- Describe elementos visuales
+- Identifica aspectos técnicos
+- Proporciona fórmulas matemáticas de cada control
+- Sugiere valores específicos
 
-Este proyecto está bajo la licencia MIT.
+**DIALOG_PROMPT**: Para conversación contextual
+- Mantiene contexto de la conversación
+- Responde preguntas específicas
+- Considera historial de mensajes
+- Conoce el estado actual de los controles
 
-## 👨‍💻 Autor
+### Flujo de Datos
 
-**Jose Luis Alvarez Manica**
-- GitHub: [@JoseLuisAlvarezManica](https://github.com/JoseLuisAlvarezManica)
+```
+Usuario → GUI (Tkinter)
+         ↓
+    DialogContext (Gestión de Estado)
+         ↓
+    LangChain → Google Gemini API
+         ↓
+    Respuesta del Asistente
+         ↓
+    Visualización en Chat
+```
 
-## 🙏 Agradecimientos
+```
+Usuario Ajusta Control → OpenCV Procesa Imagen
+                        ↓
+                    Display en Canvas
+                        ↓
+                Estado Guardado en DialogContext
+```
 
-- Google por proporcionar la API de Gemini
-- LangChain por el framework de IA conversacional
-- La comunidad de Python por las excelentes bibliotecas
+## Solución de Problemas
+
+### Error: "GEMINI_API_KEY no está establecida"
+**Solución**: Verificar que el archivo `.env` existe y contiene la clave API correcta.
+
+### Error: "No module named 'cv2'"
+**Solución**: Instalar OpenCV con `pip install opencv-python`
+
+### La aplicación no responde durante el análisis
+**Comportamiento normal**: El procesamiento de IA puede tardar unos segundos. La aplicación usa threading para mantener la interfaz responsiva.
+
+### Las imágenes se ven pixeladas
+**Causa**: Redimensionamiento automático para ajustar al canvas.
+**Solución**: Las imágenes originales se mantienen sin modificar; solo la visualización se ajusta.
+
+### Error al guardar conversación
+**Solución**: Verificar permisos de escritura en el directorio seleccionado.
+
+## Limitaciones Conocidas
+
+- Imágenes muy grandes (>10MB) pueden tardar en procesarse
+- La aplicación requiere conexión a internet para el asistente IA
+- El análisis consume tokens de la API de Google Gemini
+- Los ajustes se aplican en cascada (orden: brillo → contraste → blur → sharpen → grayscale → rotación → volteos)
+
+## Conclusiones
+
+Este proyecto demuestra la efectiva integración entre procesamiento de imágenes clásico (OpenCV) y modelos de lenguaje avanzados (Google Gemini) para crear una experiencia de edición asistida por IA.
+
+### Ventajas del Enfoque Híbrido
+
+1. **Control del Usuario**: A diferencia de editores automáticos, el usuario mantiene control total sobre cada ajuste
+2. **Sugerencias Contextuales**: El asistente entiende tanto la imagen como las capacidades técnicas de cada control
+3. **Aprendizaje Progresivo**: Los usuarios aprenden sobre edición de imágenes mediante las sugerencias del asistente
+4. **Memoria Persistente**: Cada imagen mantiene su contexto, permitiendo sesiones de trabajo extendidas
+
+### Casos de Uso Recomendados
+
+- Digitalización y mejora de documentos escaneados
+- Edición educativa de fotografías con guía IA
+- Procesamiento batch con consistencia mediante valores sugeridos
+- Análisis técnico de calidad de imagen con explicaciones
+
+### Trabajo Futuro
+
+Posibles mejoras incluyen:
+- Soporte para procesamiento por lotes
+- Más controles avanzados (HSV, curvas, niveles)
+- Detección automática de problemas específicos
+- Integración con otros modelos de visión
+- Presets basados en tipo de imagen
+- Historial de deshacer/rehacer
 
 ---
 
-**Nota**: Este es un proyecto educativo. Para uso en producción, considera implementar:
-- Manejo más robusto de errores
-- Logging detallado
-- Tests unitarios
-- Rate limiting
-- Validación de entrada de usuario
+**Desarrollado por**: Jose Luis Alvarez Manica  
+**Repositorio**: https://github.com/JoseLuisAlvarezManica/AgenteInteligente  
+**Licencia**: MIT  
+**Última actualización**: Noviembre 2025
