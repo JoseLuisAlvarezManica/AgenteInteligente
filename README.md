@@ -160,7 +160,7 @@ GEMINI_API_KEY=tu_clave_api_aqui
 ### Paso 5: Ejecutar la Aplicación
 
 ```bash
-python image_analyzer_gui.py
+python image_analyzer.py
 ```
 
 La aplicación se abrirá en modo pantalla completa.
@@ -325,12 +325,11 @@ Este mecanismo es fundamental para la usabilidad del sistema, permitiendo sesion
 
 ```
 AgenteInteligente/
-├── image_analyzer_gui.py    # Aplicación principal con interfaz gráfica
-├── image_analyzer.py         # Versión CLI (opcional)
+├── image_analyzer.py         # Versión CLI
 ├── requirements.txt          # Dependencias del proyecto
 ├── .env                      # Variables de entorno (no incluido en repo)
 ├── README.md                # Este archivo
-└── gen-lang-client-*.json   # Credenciales de Google (generado)
+
 ```
 
 ### Componentes Principales
@@ -426,7 +425,6 @@ Este proyecto demuestra la efectiva integración entre procesamiento de imágene
 
 - Digitalización y mejora de documentos escaneados
 - Edición educativa de fotografías con guía IA
-- Procesamiento batch con consistencia mediante valores sugeridos
 - Análisis técnico de calidad de imagen con explicaciones
 
 ### Trabajo Futuro
@@ -443,5 +441,4 @@ Posibles mejoras incluyen:
 
 **Desarrollado por**: Jose Luis Alvarez Manica  
 **Repositorio**: https://github.com/JoseLuisAlvarezManica/AgenteInteligente  
-**Licencia**: MIT  
 **Última actualización**: Noviembre 2025

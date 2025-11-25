@@ -127,139 +127,6 @@ IMPORTANTE:
 Responde de manera conversacional y amigable.
 """
 
-# Funciones de procesamiento CV2
-def apply_cv2_operation(image, operation_data):
-    """
-    Aplica una operación CV2 basada en los datos del comando
-    
-    Args:
-        image: Imagen OpenCV (numpy array)
-        operation_data: Dict con 'operation' y 'params'
-    
-    Returns:
-        Tuple (success, processed_image o error_message, description)
-    """
-    try:
-        operation = operation_data.get("operation", "").lower()
-        params = operation_data.get("params", {})
-        reason = operation_data.get("reason", "")
-        
-        result = image.copy()
-        description = f"{operation}: {reason}"
-        
-        if operation == "brightness":
-            value = params.get("value", 0)
-            result = cv2.convertScaleAbs(image, alpha=1, beta=value)
-            description = f"Ajuste de brillo ({value:+d}): {reason}"
-        
-        elif operation == "contrast":
-            alpha = params.get("alpha", 1.0)
-            beta = params.get("beta", 0)
-            result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
-            description = f"Ajuste de contraste (α={alpha}): {reason}"
-        
-        elif operation == "blur":
-            kernel = params.get("kernel", 5)
-            # Asegurar que el kernel es impar
-            kernel = kernel if kernel % 2 == 1 else kernel + 1
-            result = cv2.GaussianBlur(image, (kernel, kernel), 0)
-            description = f"Desenfoque Gaussiano (kernel={kernel}): {reason}"
-        
-        elif operation == "sharpen":
-            amount = params.get("amount", 1.5)
-            gaussian = cv2.GaussianBlur(image, (5, 5), 0)
-            result = cv2.addWeighted(image, 1 + amount, gaussian, -amount, 0)
-            description = f"Nitidez (amount={amount}): {reason}"
-        
-        elif operation == "edge_detection":
-            threshold1 = params.get("threshold1", 100)
-            threshold2 = params.get("threshold2", 200)
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            edges = cv2.Canny(gray, threshold1, threshold2)
-            result = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-            description = f"Detección de bordes Canny ({threshold1}, {threshold2}): {reason}"
-        
-        elif operation == "grayscale":
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            result = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-            description = f"Escala de grises: {reason}"
-        
-        elif operation == "rotate":
-            angle = params.get("angle", 0)
-            h, w = image.shape[:2]
-            center = (w // 2, h // 2)
-            matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
-            result = cv2.warpAffine(image, matrix, (w, h))
-            description = f"Rotación ({angle}°): {reason}"
-        
-        elif operation == "flip":
-            direction = params.get("direction", "horizontal")
-            flip_code = 1 if direction == "horizontal" else 0
-            result = cv2.flip(image, flip_code)
-            description = f"Volteo {direction}: {reason}"
-        
-        elif operation == "sepia":
-            kernel = np.array([[0.272, 0.534, 0.131],
-                             [0.349, 0.686, 0.168],
-                             [0.393, 0.769, 0.189]])
-            result = cv2.transform(image, kernel)
-            result = np.clip(result, 0, 255).astype(np.uint8)
-            description = f"Efecto sepia: {reason}"
-        
-        elif operation == "negative":
-            result = cv2.bitwise_not(image)
-            description = f"Negativo: {reason}"
-        
-        else:
-            return False, f"Operación desconocida: {operation}", ""
-        
-        return True, result, description
-    
-    except Exception as e:
-        return False, f"Error al aplicar {operation}: {str(e)}", ""
-
-def extract_cv2_commands(text):
-    """
-    Extrae comandos CV2 en formato JSON del texto
-    
-    Returns:
-        List de dicts con operaciones CV2
-    """
-    commands = []
-    
-    # Buscar bloques JSON en el texto
-    import re
-    # Patrón que captura JSON con o sin saltos de línea, con flags DOTALL para . incluya \n
-    json_pattern = r'```json\s*([\s\S]*?)\s*```'
-    matches = re.findall(json_pattern, text, re.DOTALL)
-    
-    for match in matches:
-        try:
-            # Limpiar el match de espacios extra
-            json_text = match.strip()
-            command = json.loads(json_text)
-            if "operation" in command:
-                commands.append(command)
-        except json.JSONDecodeError as e:
-            # Si falla, intentar encontrar JSON sin bloques de código
-            continue
-    
-    # Si no encontró nada con bloques de código, buscar objetos JSON directamente
-    if not commands:
-        # Buscar patrones que se vean como JSON de operación
-        json_object_pattern = r'\{[^{}]*"operation"\s*:\s*"[^"]+"\s*[^{}]*\}'
-        json_matches = re.findall(json_object_pattern, text, re.DOTALL)
-        
-        for match in json_matches:
-            try:
-                command = json.loads(match)
-                if "operation" in command:
-                    commands.append(command)
-            except json.JSONDecodeError:
-                continue
-    
-    return commands
-
 # Clase para manejar el contexto de diálogo con memoria por imagen
 class DialogContext:
     def __init__(self):
@@ -541,7 +408,7 @@ class ImageAnalyzerGUI:
         self.rotation_var = tk.IntVar(value=0)
         self.grayscale_var = tk.BooleanVar(value=False)
         
-        # Crear controles con mejor diseño y actualización de labels
+        # Crear controles
         row = 0
         
         # Brillo
