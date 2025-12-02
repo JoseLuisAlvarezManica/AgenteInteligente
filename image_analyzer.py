@@ -12,7 +12,7 @@ import json
 import base64
 from datetime import datetime
 from dotenv import load_dotenv
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Importación de variables de entorno
